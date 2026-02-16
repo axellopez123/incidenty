@@ -4,49 +4,47 @@ from enum import Enum
 from typing import Optional
 
 class UserRole(str, Enum):
-    SUPER_ADMIN = "super_admin"
+    SUPERADMIN = "superadmin"
     ADMIN = "admin"
     CLIENTE = "cliente"
-
-
+    
+    
 class UserRegister(BaseModel):
     username: str
-    email: str
+    email: Optional[str]
     password: str
-
-
+    
 class AdminCreate(BaseModel):
     username: str
-    email: str
+    email: Optional[str]
     password: str
-
-
+    company_id: int
+    
+class UserCreate(BaseModel):
+    username: str
+    password: str
+    
 class UserOut(BaseModel):
     id: int
     username: str
-    email: Optional[str]
+    email: Optional[str] = None
     role: UserRole
-    is_active: bool
-    company_id: Optional[int]
+    disabled: bool
 
     class Config:
         from_attributes = True
 
 
-class UserSelfUpdate(BaseModel):
+class UserUpdate(BaseModel):
     username: Optional[str] = None
     email: Optional[str] = None
+    role: Optional[UserRole] = None
+    disabled: Optional[bool] = None
 
-
-class UserAdminUpdate(BaseModel):
-    is_active: Optional[bool] = None
-
-
-class UserRoleUpdate(BaseModel):
-    role: UserRole
+    class Config:
+        from_attributes = True
 
 
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
-

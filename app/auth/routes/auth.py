@@ -14,27 +14,103 @@ from typing import List
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
-@router.post("/register", response_model=Token)
-async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(UserDB).where(UserDB.username == user.username))
-    if result.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Usuario ya existe")
+@router.post("/register")
+async def register(user: UserRegister, db: AsyncSession = Depends(get_db)):
 
-    new_user = UserDB(username=user.username, hashed_password=hash_password(user.password))
+    # Normalizar email
+    email = user.email.lower()
+
+    # Verificar si ya existe username o email
+    result = await db.execute(
+        select(UserDB).where(
+            or_(
+                UserDB.username == user.username,
+                UserDB.email == email
+            )
+        )
+    )
+
+    if result.scalar_one_or_none():
+        raise HTTPException(
+            status_code=400,
+            detail="Usuario o email ya registrado"
+        )
+
+    # Crear usuario como CLIENTE (forzado desde backend)
+    new_user = UserDB(
+        username=user.username,
+        email=email,
+        hashed_password=hash_password(user.password),
+        role=UserRole.CLIENTE,
+        company_id=None,
+        is_active=True
+    )
+
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user)
 
-    token = create_access_token({"sub": new_user.username})
-    # return {"access_token": token, "token_type": "bearer"}
-    response = JSONResponse(content={"message": "Login successful"})
+    # Crear JWT con info necesaria
+    token = create_access_token({
+        "sub": new_user.username,
+        "role": new_user.role.value,
+        "company_id": new_user.company_id
+    })
+
+    response = JSONResponse(
+        content={"message": "Registro exitoso"}
+    )
+
     response.set_cookie(
         key="access_token",
         value=token,
         httponly=True,
-        secure=True,       # Requiere HTTPS en producción
-        samesite="None",    # O "Strict" si no tienes frontend externo
-        max_age=1800,      # 30 minutos o lo que decidas
+        secure=True,      # solo HTTPS en producción
+        samesite="None",  # o "Strict" si frontend y backend mismo dominio
+        max_age=1800,
         path="/"
     )
+
     return response
+
+
+@router.post("/register/admin")
+async def create_admin(
+    admin_data: AdminCreate,
+    current_user: UserDB = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+
+    # 🔐 Solo SUPER_ADMIN
+    if current_user.role != UserRole.SUPER_ADMIN:
+        raise HTTPException(
+            status_code=403,
+            detail="Solo el superadmin puede crear administradores"
+        )
+
+    # Verificar email duplicado
+    result = await db.execute(
+        select(UserDB).where(UserDB.email == admin_data.email.lower())
+    )
+
+    if result.scalar_one_or_none():
+        raise HTTPException(
+            status_code=400,
+            detail="Email ya registrado"
+        )
+
+    # Crear admin
+    new_admin = UserDB(
+        username=admin_data.username,
+        email=admin_data.email.lower(),
+        hashed_password=hash_password(admin_data.password),
+        role=UserRole.ADMIN,
+        company_id=admin_data.company_id,
+        is_active=True
+    )
+
+    db.add(new_admin)
+    await db.commit()
+    await db.refresh(new_admin)
+
+    return {"message": "Administrador creado correctamente"}

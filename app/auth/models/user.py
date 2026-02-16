@@ -6,9 +6,9 @@ from enum import Enum
 from sqlalchemy import Enum as SQLAlchemyEnum
 
 class UserRole(str, Enum):
-    CLIENTE = "cliente"
-    VENDEDOR = "vendedor"
+    SUPERADMIN = "superadmin"
     ADMIN = "admin"
+    CLIENTE = "cliente"
     
 class UserDB(Base):
     __tablename__ = "users"

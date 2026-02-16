@@ -25,7 +25,7 @@ async def get_current_user(
         if not username:
             raise HTTPException(status_code=401, detail="Token inválido")
 
-        result = await db.execute(select(UserBD).where(UserBD.username == username))
+        result = await db.execute(select(UserDB).where(UserDB.username == username))
         user = result.scalar_one_or_none()
 
         if not user:
