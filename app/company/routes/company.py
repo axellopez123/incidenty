@@ -38,7 +38,7 @@ async def create_company(
             detail="Company ya existe"
         )
 
-    new_company = Company(name=company_data.name)
+    new_company = Company(name=company_data.name,rfc=company_data.rfc)
 
     db.add(new_company)
     await db.commit()
