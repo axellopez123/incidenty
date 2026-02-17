@@ -7,7 +7,7 @@ class Company(Base):
     __tablename__ = "companies"
 
     id = Column(Integer, primary_key=True, index=True)
-    nombre = Column(String(150), nullable=False)
+    name = Column(String(150), nullable=False)
     rfc = Column(String(20), unique=True, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
