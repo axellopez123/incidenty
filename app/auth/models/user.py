@@ -18,7 +18,7 @@ class UserDB(Base):
     email = Column(String, unique=True, index=True, nullable=True)
     birthdate = Column(Date, nullable=True) 
     hashed_password = Column(String)
-    role = Column(SQLAlchemyEnum(UserRole), default=UserRole.CLIENTE, nullable=False)
+    role = Column(String, nullable=False, default="cliente")
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=True)
     disabled = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
