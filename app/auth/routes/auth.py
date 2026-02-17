@@ -88,6 +88,11 @@ async def create_admin(
             detail="Solo el superadmin puede crear administradores"
         )
 
+    # verificar company
+    result = await db.execute(
+        select(Company).where(Company.id == admin_data.company_id)
+    )
+
     # Verificar email duplicado
     result = await db.execute(
         select(UserDB).where(UserDB.email == admin_data.email.lower())

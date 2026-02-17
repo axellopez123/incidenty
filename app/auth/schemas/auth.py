@@ -19,6 +19,17 @@ class AdminCreate(BaseModel):
     username: str
     email: str
     password: str
+    company_id: int
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "username": "admin1",
+                "email": "admin@email.com",
+                "password": "1234",
+                "company_id": 1
+            }
+        }
 
 
 class UserOut(BaseModel):
