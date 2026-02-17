@@ -5,6 +5,7 @@ from app.auth.schemas.auth import UserRole, UserRegister, AdminCreate, UserOut, 
 from app.auth.core.utils import hash_password, verify_password, create_access_token
 from app.database import get_db
 from app.auth.models.user import UserDB, UserRole
+from app.company.models.company import Company
 from app.auth.core.dependencies import get_current_user
 from sqlalchemy.orm import selectinload
 from fastapi.responses import JSONResponse
