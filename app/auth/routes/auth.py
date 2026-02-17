@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Body
+from fastapi import APIRouter, Depends, HTTPException, status, Body, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from app.auth.schemas.auth import UserRole, UserRegister, AdminCreate, UserOut, UserSelfUpdate, UserAdminUpdate, UserRoleUpdate, Token
+from app.auth.schemas.auth import UserRole, UserRegister, AdminCreate, UserOut, UserSelfUpdate, UserAdminUpdate, UserRoleUpdate, Token, LoginRequest
 from app.auth.core.utils import hash_password, verify_password, create_access_token
 from app.database import get_db
 from app.auth.models.user import UserDB, UserRole
@@ -114,3 +114,102 @@ async def create_admin(
     await db.refresh(new_admin)
 
     return {"message": "Administrador creado correctamente"}
+
+
+
+async def authenticate_user(
+    db: AsyncSession,
+    username: str,
+    password: str
+) -> UserDB | None:
+
+    result = await db.execute(
+        select(UserDB).where(UserDB.username == username)
+    )
+
+    user = result.scalar_one_or_none()
+
+    if not user:
+        return None
+
+    if not verify_password(password, user.hashed_password):
+        return None
+
+    if user.disabled:
+        return None
+
+    return user
+
+
+@router.post("/api/client/login")
+async def login_client(
+    data: LoginRequest,
+    response: Response,
+    db: AsyncSession = Depends(get_db)
+):
+
+    user = await authenticate_user(db, data.username, data.password)
+
+    if not user:
+        raise HTTPException(401, "Credenciales incorrectas")
+
+    # permitir solo cliente y superadmin
+    if user.role not in ["cliente", "superadmin"]:
+        raise HTTPException(403, "No autorizado para sistema cliente")
+
+    token = create_access_token({
+        "sub": user.username,
+        "user_id": user.id,
+        "role": user.role,
+        "company_id": user.company_id,
+        "system": "client"
+    })
+
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        samesite="lax"
+    )
+
+    return {
+        "message": "Login cliente exitoso",
+        "role": user.role
+    }
+
+
+@router.post("/api/admin/login")
+async def login_admin(
+    data: LoginRequest,
+    response: Response,
+    db: AsyncSession = Depends(get_db)
+):
+
+    user = await authenticate_user(db, data.username, data.password)
+
+    if not user:
+        raise HTTPException(401, "Credenciales incorrectas")
+
+    # permitir solo admin y superadmin
+    if user.role not in ["admin", "superadmin"]:
+        raise HTTPException(403, "No autorizado para sistema admin")
+
+    token = create_access_token({
+        "sub": user.username,
+        "user_id": user.id,
+        "role": user.role,
+        "company_id": user.company_id,
+        "system": "admin"
+    })
+
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        samesite="lax"
+    )
+
+    return {
+        "message": "Login admin exitoso",
+        "role": user.role
+    }
