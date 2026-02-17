@@ -54,7 +54,7 @@ async def register(user: UserRegister, db: AsyncSession = Depends(get_db)):
     # Crear JWT con info necesaria
     token = create_access_token({
         "sub": new_user.username,
-        "role": new_user.role.value,
+        "role": new_user.role,
         "company_id": new_user.company_id
     })
 
