@@ -82,7 +82,7 @@ async def create_admin(
 ):
 
     # 🔐 Solo SUPER_ADMIN
-    if current_user.role != UserRole.SUPER_ADMIN:
+    if current_user.role != UserRole.SUPERADMIN:
         raise HTTPException(
             status_code=403,
             detail="Solo el superadmin puede crear administradores"

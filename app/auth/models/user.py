@@ -23,7 +23,7 @@ class UserDB(Base):
     disabled = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    company = relationship("Company", back_populates="admins")
+    company = relationship("Company", back_populates="users")
 
     @property
     def is_active(self) -> bool:

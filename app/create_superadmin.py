@@ -1,8 +1,9 @@
 import asyncio
 from app.database import SessionLocal
 from app.auth.core.dependencies import create_user
-from app.auth.models.user import UserRole
+from app.auth.models.user import UserDB, UserRole
 from app.company.models.company import Company
+from app.events.models.event import Event
 
 
 async def main():
