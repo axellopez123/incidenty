@@ -1,12 +1,13 @@
 import asyncio
-from app.database import async_session
-from app.auth.services.user import create_user
+from app.database import SessionLocal
+from app.auth.core.dependencies import create_user
 from app.auth.models.user import UserRole
+from app.company.models.company import Company
 
 
 async def main():
 
-    async with async_session() as db:
+    async with SessionLocal() as db:
 
         await create_user(
             db=db,
@@ -15,6 +16,8 @@ async def main():
             email="admin@email.com",
             role=UserRole.SUPERADMIN
         )
+        
+        
 
 
 asyncio.run(main())
