@@ -136,15 +136,15 @@ async def authenticate_user(
     user = result.scalar_one_or_none()
 
     if not user:
+        return None
         print(1)
-        return None
     if not verify_password(password, user.hashed_password):
-        print(2)
         return None
+        print(2)
 
     if user.disabled:
-        print(3)
         return None
+        print(3)
 
     return user
 
