@@ -137,14 +137,14 @@ async def authenticate_user(
 
     if not user:
         return None
-        print(1)
+        
     if not verify_password(password, user.hashed_password):
         return None
-        print(2)
+        
 
     if user.disabled:
         return None
-        print(3)
+        
 
     return user
 
