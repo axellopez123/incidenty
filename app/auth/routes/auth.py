@@ -44,7 +44,7 @@ async def register(user: UserRegister, db: AsyncSession = Depends(get_db)):
         hashed_password=hash_password(user.password),
         role=UserRole.CLIENTE,
         company_id=None,
-        is_active=True
+        disabled=False
     )
 
     db.add(new_user)
@@ -112,7 +112,7 @@ async def create_admin(
         hashed_password=hash_password(admin_data.password),
         role=UserRole.ADMIN,
         company_id=admin_data.company_id,
-        is_active=True
+        disabled=False
     )
 
     db.add(new_admin)
