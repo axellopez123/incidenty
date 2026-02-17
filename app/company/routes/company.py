@@ -8,7 +8,7 @@ from app.database import get_db
 from app.company.models.company import Company
 from app.company.schemas.company import CompanyCreate
 from app.auth.models.user import UserDB, UserRole
-from app.auth.dependencies import get_current_user
+from app.auth.core.dependencies import get_current_user
 
 router = APIRouter(prefix="/companies", tags=["Companies"])
 
