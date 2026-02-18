@@ -10,9 +10,49 @@ class Event(Base):
     __tablename__ = "events"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    description = Column(String, nullable=True)
-    date = Column(DateTime, nullable=False)
+    # identidad
+    name = Column(String(200), nullable=False)
+    slug = Column(String(200), unique=True, index=True)
+    short_name = Column(String(100))
+    description = Column(String)
+
+    status = Column(String(50), default="draft")
+
+    # fechas
+    start_date = Column(DateTime, nullable=False)
+    end_date = Column(DateTime)
+
+    registration_deadline = Column(DateTime)
+
+    # deporte
+    sport_type = Column(String(50))
+    gender = Column(String(20))
+
+    max_participants = Column(Integer)
+
+    # ubicación
+    location_name = Column(String(200))
+    address = Column(String(300))
+    city = Column(String(100))
+    state = Column(String(100))
+    country = Column(String(100))
+
+    latitude = Column(String(50))
+    longitude = Column(String(50))
+
+    registration_open = Column(Boolean, default=True)
+
+    price = Column(Integer)
+
+    contact_email = Column(String(200))
+    contact_phone = Column(String(50))
+
+    rules = Column(String)
+
+    terms_and_conditions = Column(String)
+
+    banner_url = Column(String)
+
 
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
 
@@ -25,3 +65,29 @@ class Event(Base):
         secondary="event_sponsors",
         back_populates="events"
     )
+
+    images = relationship(
+        "EventImage",
+        back_populates="event",
+        cascade="all, delete"
+    )
+
+
+
+class EventImage(Base):
+    __tablename__ = "event_images"
+
+    id = Column(Integer, primary_key=True)
+
+    event_id = Column(Integer, ForeignKey("events.id", ondelete="CASCADE"))
+
+    image_url = Column(String(500))
+
+    is_logo = Column(Boolean, default=False)
+    is_cover = Column(Boolean, default=False)
+
+    order = Column(Integer, default=0)
+
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    event = relationship("Event", back_populates="images")
