@@ -14,3 +14,9 @@ class Company(Base):
     # Relaciones
     users = relationship("UserDB", back_populates="company", cascade="all, delete")
     events = relationship("Event", back_populates="company", cascade="all, delete")
+
+    sponsors = relationship(
+        "Sponsor",
+        back_populates="company",
+        cascade="all, delete"
+    )

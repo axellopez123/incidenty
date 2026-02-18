@@ -17,4 +17,10 @@ class Event(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    company = relationship("Company")
+    company = relationship("Company", back_populates="events")
+
+    sponsors = relationship(
+        "Sponsor",
+        secondary="event_sponsors",
+        back_populates="events"
+    )
