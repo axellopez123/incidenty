@@ -4,7 +4,7 @@ from app.auth.routes.auth import router as auth_router
 from app.company.routes.company import router as company_router
 from app.events.routes.event import router as event_router
 from app.sponsor.routes.sponsor import router as sponsor_router
-
+import app.models
 from app.database import database, init_db
 
 from typing import List
