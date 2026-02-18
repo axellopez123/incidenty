@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
+from app.events.models.event_sponsor import event_sponsors
 
 
 class Sponsor(Base):

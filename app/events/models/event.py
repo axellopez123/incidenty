@@ -3,6 +3,7 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
+from app.events.models.event_sponsor import event_sponsors
 
 
 class Event(Base):
