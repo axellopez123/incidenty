@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+from sqlalchemy import select, and_
 from app.database import get_db
 from app.events.models.event import Event
 from app.events.schemas.event import EventCreate, EventUpdate, EventOut
@@ -37,7 +38,7 @@ async def create_event(
 
     # Verificar que la company exista
     result = await db.execute(
-        select(Company).where(Company.id == event_data.company_id)
+        select(Company).where(Company.id == company_id)
     )
 
     company = result.scalar_one_or_none()
@@ -47,14 +48,14 @@ async def create_event(
 
     # 🔐 Si es admin, solo puede crear en SU company
     if current_user.role == "admin":
-        if current_user.company_id != event_data.company_id:
+        if current_user.company_id != company_id:
             raise HTTPException(403, "No puedes crear eventos para otra company")
-
+   
     new_event = Event(
-        name=event_data.name,
-        description=event_data.description,
-        date=event_data.date,
-        company_id=event_data.company_id
+        name=name,
+        description=description,
+        date=date,
+        company_id=company_id
     )
 
     db.add(new_event)

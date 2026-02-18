@@ -69,7 +69,7 @@ class Event(Base):
     images = relationship(
         "EventImage",
         back_populates="event",
-        cascade="all, delete"
+        cascade="all, delete-orphan"
     )
 
 
