@@ -4,7 +4,7 @@ from sqlalchemy import select
 
 from app.database import get_db
 from app.events.models.event import Event
-from app.events.schemas.event import EventCreate
+from app.events.schemas.event import EventCreate, EventUpdate, EventOut
 from app.auth.models.user import UserDB
 from app.auth.core.permissions import RequireRoles
 from app.company.models.company import Company
