@@ -221,3 +221,37 @@ async def login_admin(
         "message": "Login admin exitoso",
         "role": user.role
     }
+    
+    
+    
+@router.get("/me")
+async def get_session_info(
+    current_user: UserDB = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    
+    # cargar company si existe
+    company = None
+
+    if current_user.company_id:
+        result = await db.execute(
+            select(Company).where(Company.id == current_user.company_id)
+        )
+        company = result.scalar_one_or_none()
+
+    return {
+        "user_id": current_user.id,
+        "username": current_user.username,
+        "email": current_user.email,
+        "role": current_user.role,
+
+        "company": {
+            "id": company.id,
+            "name": company.name,
+            "rfc": company.rfc
+        } if company else None,
+
+        "company_id": current_user.company_id,
+
+        "is_active": current_user.is_active
+    }
