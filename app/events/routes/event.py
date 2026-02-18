@@ -53,3 +53,104 @@ async def create_event(
         "message": "Evento creado correctamente",
         "event_id": new_event.id
     }
+
+
+@router.get("/", response_model=list[EventOut])
+async def list_events(
+    current_user: UserDB = Depends(RequireRoles("admin", "superadmin", "cliente")),
+    db: AsyncSession = Depends(get_db)
+):
+
+    query = select(Event)
+
+    # Admin solo su company
+    if current_user.role == "admin":
+        query = query.where(Event.company_id == current_user.company_id)
+
+    # Cliente solo su company
+    if current_user.role == "cliente":
+        query = query.where(Event.company_id == current_user.company_id)
+
+    result = await db.execute(query)
+    events = result.scalars().all()
+
+    return events
+
+
+@router.get("/{event_id}", response_model=EventOut)
+async def get_event(
+    event_id: int,
+    current_user: UserDB = Depends(RequireRoles("admin", "superadmin", "cliente")),
+    db: AsyncSession = Depends(get_db)
+):
+
+    result = await db.execute(
+        select(Event).where(Event.id == event_id)
+    )
+
+    event = result.scalar_one_or_none()
+
+    if not event:
+        raise HTTPException(404, "Evento no encontrado")
+
+    # admin / cliente solo su company
+    if current_user.role != "superadmin":
+        if event.company_id != current_user.company_id:
+            raise HTTPException(403, "No autorizado")
+
+    return event
+
+@router.put("/{event_id}", response_model=EventOut)
+async def update_event(
+    event_id: int,
+    event_data: EventUpdate,
+    current_user: UserDB = Depends(RequireRoles("admin", "superadmin")),
+    db: AsyncSession = Depends(get_db)
+):
+
+    result = await db.execute(
+        select(Event).where(Event.id == event_id)
+    )
+
+    event = result.scalar_one_or_none()
+
+    if not event:
+        raise HTTPException(404, "Evento no encontrado")
+
+    # admin solo su company
+    if current_user.role == "admin":
+        if event.company_id != current_user.company_id:
+            raise HTTPException(403, "No autorizado")
+
+    for key, value in event_data.dict(exclude_unset=True).items():
+        setattr(event, key, value)
+
+    await db.commit()
+    await db.refresh(event)
+
+    return event
+
+@router.delete("/{event_id}")
+async def delete_event(
+    event_id: int,
+    current_user: UserDB = Depends(RequireRoles("admin", "superadmin")),
+    db: AsyncSession = Depends(get_db)
+):
+
+    result = await db.execute(
+        select(Event).where(Event.id == event_id)
+    )
+
+    event = result.scalar_one_or_none()
+
+    if not event:
+        raise HTTPException(404, "Evento no encontrado")
+
+    if current_user.role == "admin":
+        if event.company_id != current_user.company_id:
+            raise HTTPException(403, "No autorizado")
+
+    await db.delete(event)
+    await db.commit()
+
+    return {"message": "Evento eliminado correctamente"}
