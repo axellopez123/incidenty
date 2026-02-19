@@ -3,6 +3,8 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
 
+from app.categories.models.category import Category
+from app.events.models.event import Event
 
 class Category(Base):
 
