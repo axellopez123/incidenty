@@ -15,6 +15,7 @@ import os
 import uuid
 from datetime import datetime
 import slugify
+import json
 
 STORAGE_PATH = "storage/events"
 
