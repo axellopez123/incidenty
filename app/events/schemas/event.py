@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from typing import Optional, List
+from app.events.schemas.event_category import EventCategoryOut
 
 
 # =========================
@@ -130,7 +131,7 @@ class EventOut(EventBase):
     created_at: datetime
 
     images: List[EventImageOut] = []
-    
+
     event_categories: List[EventCategoryOut] = []
 
     model_config = ConfigDict(from_attributes=True)
