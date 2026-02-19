@@ -21,6 +21,15 @@ class CategoryCreate(CategoryBase):
     pass
 
 
+class CategoryUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    gender: Optional[str] = None
+    min_age: Optional[int] = None
+    max_age: Optional[int] = None
+    is_active: Optional[bool] = None
+
+
 class CategoryOut(BaseModel):
 
     id: int
