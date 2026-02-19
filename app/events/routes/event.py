@@ -148,7 +148,7 @@ async def create_event(
             # validar category existe
             result = await db.execute(
                 select(Category).where(
-                    Category.id == item["category_id"]
+                    Category.id == item.category_id
                 )
             )
 
@@ -157,27 +157,23 @@ async def create_event(
             if not category:
                 raise HTTPException(
                     404,
-                    f"Category {item['category_id']} no existe"
+                    f"Category {item.category_id} no existe"
                 )
 
             event_category = EventCategory(
-
                 event_id=new_event.id,
-                category_id=item["category_id"],
+                category_id=item.category_id,
 
-                price=item.get("price"),
-                max_participants=item.get("max_participants"),
+                price=item.price,
+                max_participants=item.max_participants,
 
-                start_time=item.get("start_time"),
-                end_time=item.get("end_time"),
+                start_time=item.start_time,
+                end_time=item.end_time,
 
-                registration_deadline=item.get(
-                    "registration_deadline"
-                )
+                registration_deadline=item.registration_deadline
             )
 
             db.add(event_category)
-            
 
     event_folder = f"{STORAGE_PATH}/{new_event.id}"
     os.makedirs(event_folder, exist_ok=True)
