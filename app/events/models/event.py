@@ -6,7 +6,6 @@ from app.database import Base
 from app.events.models.event_sponsor import event_sponsors
 from app.events.models.event_categories import EventCategory
 from app.categories.models.category import Category
-from app.events.models.event import Event
 
 class Event(Base):
     __tablename__ = "events"
