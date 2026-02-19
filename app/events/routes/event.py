@@ -6,7 +6,7 @@ from app.database import get_db
 from app.events.models.event import Event, EventImage
 from app.events.schemas.event import EventCreate, EventUpdate, EventOut
 from app.auth.models.user import UserDB
-from app.events.models.event_category import EventCategory
+from app.events.models.event_categories import EventCategory
 from app.categories.models.category import Category
 from app.auth.core.permissions import RequireRoles
 from app.company.models.company import Company
