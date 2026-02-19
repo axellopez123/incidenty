@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
 from app.events.models.event_sponsor import event_sponsors
+from app.events.models.event_categories import EventCategory
 
 
 class Event(Base):
@@ -72,6 +73,14 @@ class Event(Base):
         lazy="selectin",
         cascade="all, delete-orphan"
     )
+
+    event_categories = relationship(
+        "EventCategory",
+        back_populates="event",
+        cascade="all, delete-orphan",
+        lazy="selectin"
+    )
+
 
 
 

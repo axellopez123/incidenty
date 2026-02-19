@@ -6,6 +6,8 @@ from app.database import get_db
 from app.events.models.event import Event, EventImage
 from app.events.schemas.event import EventCreate, EventUpdate, EventOut
 from app.auth.models.user import UserDB
+from app.events.models.event_category import EventCategory
+from app.categories.models.category import Category
 from app.auth.core.permissions import RequireRoles
 from app.company.models.company import Company
 from typing import List, Optional
@@ -58,7 +60,7 @@ async def create_event(
     terms_and_conditions: Optional[str] = Form(None),
 
     company_id: int = Form(...),
-
+    categories: Optional[str] = Form(None),
     logo: Optional[UploadFile] = File(None),
     cover: Optional[UploadFile] = File(None),
     gallery: Optional[List[UploadFile]] = File(None),
@@ -130,6 +132,47 @@ async def create_event(
     db.add(new_event)
     await db.commit()
     await db.refresh(new_event)
+
+
+    if categories:
+
+        categories_data = json.loads(categories)
+
+        for item in categories_data:
+
+            # validar category existe
+            result = await db.execute(
+                select(Category).where(
+                    Category.id == item["category_id"]
+                )
+            )
+
+            category = result.scalar_one_or_none()
+
+            if not category:
+                raise HTTPException(
+                    404,
+                    f"Category {item['category_id']} no existe"
+                )
+
+            event_category = EventCategory(
+
+                event_id=new_event.id,
+                category_id=item["category_id"],
+
+                price=item.get("price"),
+                max_participants=item.get("max_participants"),
+
+                start_time=item.get("start_time"),
+                end_time=item.get("end_time"),
+
+                registration_deadline=item.get(
+                    "registration_deadline"
+                )
+            )
+
+            db.add(event_category)
+            
 
     event_folder = f"{STORAGE_PATH}/{new_event.id}"
     os.makedirs(event_folder, exist_ok=True)
