@@ -16,6 +16,7 @@ import uuid
 from datetime import datetime
 import slugify
 import json
+import app.events.schemas.event_category import EventCategoryCreate
 
 STORAGE_PATH = "storage/events"
 
@@ -141,7 +142,7 @@ async def create_event(
             EventCategoryCreate(**item)
             for item in json.loads(categories)
         ]
-        
+
         for item in categories_data:
 
             # validar category existe
