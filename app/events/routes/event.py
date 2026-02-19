@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy import select, and_
 from app.database import get_db
-from app.events.models.event import Event
+from app.events.models.event import Event, EventImage
 from app.events.schemas.event import EventCreate, EventUpdate, EventOut
 from app.auth.models.user import UserDB
 from app.auth.core.permissions import RequireRoles
@@ -12,31 +12,63 @@ from typing import List, Optional
 import os
 import uuid
 from datetime import datetime
+import slugify
 
 STORAGE_PATH = "storage/events"
 
 router = APIRouter(prefix="/events", tags=["Events"])
 
 
-@router.post("/")
+@router.post("/", response_model=EventOut)
 async def create_event(
+
     name: str = Form(...),
-    description: str = Form(None),
-    date: datetime = Form(...),
+    short_name: Optional[str] = Form(None),
+    description: Optional[str] = Form(None),
+
+    status: Optional[str] = Form("draft"),
+
+    start_date: datetime = Form(...),
+    end_date: Optional[datetime] = Form(None),
+
+    registration_deadline: Optional[datetime] = Form(None),
+
+    sport_type: Optional[str] = Form(None),
+    gender: Optional[str] = Form(None),
+
+    max_participants: Optional[int] = Form(None),
+
+    location_name: Optional[str] = Form(None),
+    address: Optional[str] = Form(None),
+    city: Optional[str] = Form(None),
+    state: Optional[str] = Form(None),
+    country: Optional[str] = Form(None),
+
+    latitude: Optional[str] = Form(None),
+    longitude: Optional[str] = Form(None),
+
+    registration_open: Optional[bool] = Form(True),
+
+    price: Optional[int] = Form(None),
+
+    contact_email: Optional[str] = Form(None),
+    contact_phone: Optional[str] = Form(None),
+
+    rules: Optional[str] = Form(None),
+    terms_and_conditions: Optional[str] = Form(None),
+
     company_id: int = Form(...),
 
     logo: Optional[UploadFile] = File(None),
+    cover: Optional[UploadFile] = File(None),
     gallery: Optional[List[UploadFile]] = File(None),
 
     current_user: UserDB = Depends(RequireRoles("admin", "superadmin")),
     db: AsyncSession = Depends(get_db)
+
 ):
 
-    # 🔐 Solo admin o superadmin
-    if current_user.role not in ["admin", "superadmin"]:
-        raise HTTPException(403, "No autorizado")
-
-    # Verificar que la company exista
+    # validar company
     result = await db.execute(
         select(Company).where(Company.id == company_id)
     )
@@ -46,37 +78,66 @@ async def create_event(
     if not company:
         raise HTTPException(404, "Company no existe")
 
-    # 🔐 Si es admin, solo puede crear en SU company
     if current_user.role == "admin":
         if current_user.company_id != company_id:
-            raise HTTPException(403, "No puedes crear eventos para otra company")
-   
+            raise HTTPException(403, "No autorizado")
+
+    # crear slug
+    slug = slugify.slugify(name)
+
     new_event = Event(
+
         name=name,
+        slug=slug,
+        short_name=short_name,
         description=description,
-        date=date,
+
+        status=status,
+
+        start_date=start_date,
+        end_date=end_date,
+
+        registration_deadline=registration_deadline,
+
+        sport_type=sport_type,
+        gender=gender,
+
+        max_participants=max_participants,
+
+        location_name=location_name,
+        address=address,
+        city=city,
+        state=state,
+        country=country,
+
+        latitude=latitude,
+        longitude=longitude,
+
+        registration_open=registration_open,
+
+        price=price,
+
+        contact_email=contact_email,
+        contact_phone=contact_phone,
+
+        rules=rules,
+        terms_and_conditions=terms_and_conditions,
+
         company_id=company_id
+
     )
 
     db.add(new_event)
     await db.commit()
     await db.refresh(new_event)
 
-    # Crear carpeta del evento
     event_folder = f"{STORAGE_PATH}/{new_event.id}"
     os.makedirs(event_folder, exist_ok=True)
 
-
-    # Guardar logo
+    # LOGO
     if logo:
 
-        ext = logo.filename.split(".")[-1]
-        filename = f"logo.{ext}"
-
-        path = f"{event_folder}/{filename}"
-
-        with open(path, "wb") as buffer:
-            buffer.write(await logo.read())
+        path = await save_upload_file(logo, event_folder)
 
         db.add(EventImage(
             event_id=new_event.id,
@@ -84,19 +145,25 @@ async def create_event(
             is_logo=True
         ))
 
+    # COVER
+    if cover:
 
-    # Guardar galería
+        path = await save_upload_file(cover, event_folder)
+
+        db.add(EventImage(
+            event_id=new_event.id,
+            image_url=path,
+            is_cover=True
+        ))
+
+        new_event.banner_url = path
+
+    # GALLERY
     if gallery:
 
         for index, image in enumerate(gallery):
 
-            ext = image.filename.split(".")[-1]
-            filename = f"{uuid.uuid4()}.{ext}"
-
-            path = f"{event_folder}/{filename}"
-
-            with open(path, "wb") as buffer:
-                buffer.write(await image.read())
+            path = await save_upload_file(image, event_folder)
 
             db.add(EventImage(
                 event_id=new_event.id,
@@ -104,17 +171,15 @@ async def create_event(
                 order=index
             ))
 
-
     await db.commit()
+    await db.refresh(new_event)
 
-    return {
-        "message": "Evento creado correctamente",
-        "event_id": new_event.id
-    }
+    return new_event
 
 async def save_upload_file(file: UploadFile, folder: str):
 
     ext = file.filename.split(".")[-1]
+
     filename = f"{uuid.uuid4()}.{ext}"
 
     path = f"{folder}/{filename}"
