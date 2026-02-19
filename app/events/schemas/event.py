@@ -130,5 +130,7 @@ class EventOut(EventBase):
     created_at: datetime
 
     images: List[EventImageOut] = []
+    
+    event_categories: List[EventCategoryOut] = []
 
     model_config = ConfigDict(from_attributes=True)
