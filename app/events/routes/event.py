@@ -137,8 +137,11 @@ async def create_event(
 
     if categories:
 
-        categories_data = json.loads(categories)
-
+        categories_data = [
+            EventCategoryCreate(**item)
+            for item in json.loads(categories)
+        ]
+        
         for item in categories_data:
 
             # validar category existe
