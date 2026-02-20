@@ -377,193 +377,193 @@ async def update_event(
 
 ):
 
-    async with db.begin():
+    # async with db.begin():
 
-        result = await db.execute(
-            select(Event)
-            .options(
-                selectinload(Event.event_categories),
-                selectinload(Event.images),
-                selectinload(Event.sponsors)
-            )
-            .where(Event.id == event_id)
+    result = await db.execute(
+        select(Event)
+        .options(
+            selectinload(Event.event_categories),
+            selectinload(Event.images),
+            selectinload(Event.sponsors)
         )
+        .where(Event.id == event_id)
+    )
 
-        event = result.scalar_one_or_none()
+    event = result.scalar_one_or_none()
 
-        if not event:
-            raise HTTPException(404, "Evento no encontrado")
+    if not event:
+        raise HTTPException(404, "Evento no encontrado")
 
-        # permiso
-        if current_user.role == "admin":
-            if event.company_id != current_user.company_id:
-                raise HTTPException(403, "No autorizado")
-
-
-        # =========================
-        # UPDATE BASIC FIELDS
-        # =========================
-
-        if name is not None:
-            event.name = name
-
-        if description is not None:
-            event.description = description
-
-        if start_date is not None:
-            event.start_date = start_date
-
-        if end_date is not None:
-            event.end_date = end_date
+    # permiso
+    if current_user.role == "admin":
+        if event.company_id != current_user.company_id:
+            raise HTTPException(403, "No autorizado")
 
 
-        # =========================
-        # SYNC CATEGORIES
-        # =========================
+    # =========================
+    # UPDATE BASIC FIELDS
+    # =========================
 
-        if categories is not None:
+    if name is not None:
+        event.name = name
 
-            incoming = json.loads(categories)
+    if description is not None:
+        event.description = description
 
-            incoming_ids = {
-                item.get("id") for item in incoming if item.get("id")
-            }
+    if start_date is not None:
+        event.start_date = start_date
 
-            existing = {
-                ec.id: ec for ec in event.event_categories
-            }
-
-            # DELETE
-            for ec_id, ec in existing.items():
-                if ec_id not in incoming_ids:
-                    await db.delete(ec)
+    if end_date is not None:
+        event.end_date = end_date
 
 
-            # UPDATE / CREATE
-            for item in incoming:
+    # =========================
+    # SYNC CATEGORIES
+    # =========================
 
-                if item.get("id") in existing:
+    if categories is not None:
 
-                    ec = existing[item["id"]]
+        incoming = json.loads(categories)
 
-                    ec.category_id = item["category_id"]
-                    ec.price = item.get("price")
-                    ec.max_participants = item.get("max_participants")
-                    ec.start_time = item.get("start_time")
-                    ec.end_time = item.get("end_time")
-                    ec.registration_deadline = item.get(
+        incoming_ids = {
+            item.get("id") for item in incoming if item.get("id")
+        }
+
+        existing = {
+            ec.id: ec for ec in event.event_categories
+        }
+
+        # DELETE
+        for ec_id, ec in existing.items():
+            if ec_id not in incoming_ids:
+                await db.delete(ec)
+
+
+        # UPDATE / CREATE
+        for item in incoming:
+
+            if item.get("id") in existing:
+
+                ec = existing[item["id"]]
+
+                ec.category_id = item["category_id"]
+                ec.price = item.get("price")
+                ec.max_participants = item.get("max_participants")
+                ec.start_time = item.get("start_time")
+                ec.end_time = item.get("end_time")
+                ec.registration_deadline = item.get(
+                    "registration_deadline"
+                )
+
+            else:
+
+                db.add(EventCategory(
+                    event_id=event.id,
+                    category_id=item["category_id"],
+                    price=item.get("price"),
+                    max_participants=item.get("max_participants"),
+                    start_time=item.get("start_time"),
+                    end_time=item.get("end_time"),
+                    registration_deadline=item.get(
                         "registration_deadline"
                     )
-
-                else:
-
-                    db.add(EventCategory(
-                        event_id=event.id,
-                        category_id=item["category_id"],
-                        price=item.get("price"),
-                        max_participants=item.get("max_participants"),
-                        start_time=item.get("start_time"),
-                        end_time=item.get("end_time"),
-                        registration_deadline=item.get(
-                            "registration_deadline"
-                        )
-                    ))
-
-
-        # =========================
-        # SYNC SPONSORS
-        # =========================
-
-        if sponsors is not None:
-
-            sponsor_ids = json.loads(sponsors)
-
-            result = await db.execute(
-                select(Sponsor)
-                .where(Sponsor.id.in_(sponsor_ids))
-            )
-
-            event.sponsors = result.scalars().all()
-
-
-        # =========================
-        # IMAGE FOLDER
-        # =========================
-
-        event_folder = f"{STORAGE_PATH}/{event.id}"
-        os.makedirs(event_folder, exist_ok=True)
-
-
-        # =========================
-        # LOGO
-        # =========================
-
-        if logo:
-
-            # eliminar anterior
-            for img in event.images:
-                if img.is_logo:
-                    await db.delete(img)
-
-            path = await save_upload_file(logo, event_folder)
-
-            db.add(EventImage(
-                event_id=event.id,
-                image_url=path,
-                is_logo=True
-            ))
-
-
-        # =========================
-        # COVER
-        # =========================
-
-        if cover:
-
-            for img in event.images:
-                if img.is_cover:
-                    await db.delete(img)
-
-            path = await save_upload_file(cover, event_folder)
-
-            db.add(EventImage(
-                event_id=event.id,
-                image_url=path,
-                is_cover=True
-            ))
-
-            event.banner_url = path
-
-
-        # =========================
-        # GALLERY SYNC
-        # =========================
-
-        if keep_gallery is not None:
-
-            keep_ids = set(json.loads(keep_gallery))
-
-            for img in event.images:
-
-                if (
-                    not img.is_logo
-                    and not img.is_cover
-                    and img.id not in keep_ids
-                ):
-                    await db.delete(img)
-
-
-        if gallery:
-
-            for index, image in enumerate(gallery):
-
-                path = await save_upload_file(image, event_folder)
-
-                db.add(EventImage(
-                    event_id=event.id,
-                    image_url=path,
-                    order=index
                 ))
+
+
+    # =========================
+    # SYNC SPONSORS
+    # =========================
+
+    if sponsors is not None:
+
+        sponsor_ids = json.loads(sponsors)
+
+        result = await db.execute(
+            select(Sponsor)
+            .where(Sponsor.id.in_(sponsor_ids))
+        )
+
+        event.sponsors = result.scalars().all()
+
+
+    # =========================
+    # IMAGE FOLDER
+    # =========================
+
+    event_folder = f"{STORAGE_PATH}/{event.id}"
+    os.makedirs(event_folder, exist_ok=True)
+
+
+    # =========================
+    # LOGO
+    # =========================
+
+    if logo:
+
+        # eliminar anterior
+        for img in event.images:
+            if img.is_logo:
+                await db.delete(img)
+
+        path = await save_upload_file(logo, event_folder)
+
+        db.add(EventImage(
+            event_id=event.id,
+            image_url=path,
+            is_logo=True
+        ))
+
+
+    # =========================
+    # COVER
+    # =========================
+
+    if cover:
+
+        for img in event.images:
+            if img.is_cover:
+                await db.delete(img)
+
+        path = await save_upload_file(cover, event_folder)
+
+        db.add(EventImage(
+            event_id=event.id,
+            image_url=path,
+            is_cover=True
+        ))
+
+        event.banner_url = path
+
+
+    # =========================
+    # GALLERY SYNC
+    # =========================
+
+    if keep_gallery is not None:
+
+        keep_ids = set(json.loads(keep_gallery))
+
+        for img in event.images:
+
+            if (
+                not img.is_logo
+                and not img.is_cover
+                and img.id not in keep_ids
+            ):
+                await db.delete(img)
+
+
+    if gallery:
+
+        for index, image in enumerate(gallery):
+
+            path = await save_upload_file(image, event_folder)
+
+            db.add(EventImage(
+                event_id=event.id,
+                image_url=path,
+                order=index
+            ))
 
 
     # reload fully hydrated object
