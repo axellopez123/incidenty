@@ -569,6 +569,8 @@ async def update_event(
 
 
     # reload fully hydrated object
+    await db.commit()
+    await db.refresh(event)
 
     result = await db.execute(
         select(Event)
