@@ -425,7 +425,7 @@ async def update_event(
 
     if categories is not None:
 
-        incoming = json.loads(categories)
+        incoming = [EventCategoryUpdate(**item) for item in json.loads(categories)]
 
         incoming_ids = {
             item.get("id") for item in incoming if item.get("id")
