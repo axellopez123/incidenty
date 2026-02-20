@@ -290,6 +290,8 @@ async def list_events(
 ):
 
     query = select(Event).options(
+        selectinload(Event.event_categories)
+        .selectinload(EventCategory.category),
         selectinload(Event.company),
         selectinload(Event.sponsors),
         selectinload(Event.images)
