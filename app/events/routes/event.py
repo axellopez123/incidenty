@@ -133,7 +133,8 @@ async def create_event(
 
     db.add(new_event)
     await db.commit()
-    await db.refresh(new_event)
+    # await db.refresh(new_event)
+    await db.flush()   # para obtener IDs
 
 
     if categories:
