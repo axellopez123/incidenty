@@ -254,13 +254,13 @@ async def list_events(
     current_user: UserDB = Depends(RequireRoles("admin", "superadmin")),
     db: AsyncSession = Depends(get_db)
 ):
-
     query = select(Event)
         .options(
             selectinload(Event.event_categories)
             .selectinload(EventCategory.category),
+
             selectinload(Event.images)
-            )
+        )
 
     # Admin solo su company
     if current_user.role == "admin":
