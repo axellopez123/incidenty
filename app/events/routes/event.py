@@ -256,10 +256,10 @@ async def list_events(
 ):
 
     query = select(Event)
-            .options(
-                selectinload(Event.event_categories)
-                .selectinload(EventCategory.category),
-                selectinload(Event.images)
+        .options(
+            selectinload(Event.event_categories)
+            .selectinload(EventCategory.category),
+            selectinload(Event.images)
             )
 
     # Admin solo su company
