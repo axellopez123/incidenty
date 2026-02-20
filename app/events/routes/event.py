@@ -16,7 +16,7 @@ import uuid
 from datetime import datetime
 import slugify
 import json
-from app.events.schemas.event_category import EventCategoryCreate
+from app.events.schemas.event_category import EventCategoryCreate, EventCategoryUpdate
 
 STORAGE_PATH = "storage/events"
 
