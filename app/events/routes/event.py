@@ -216,9 +216,24 @@ async def create_event(
             ))
 
     await db.commit()
-    await db.refresh(new_event)
+    # await db.refresh(new_event)
 
-    return new_event
+    # return new_event
+    result = await db.execute(
+        select(Event)
+        .options(
+            selectinload(Event.event_categories)
+            .selectinload(EventCategory.category),
+
+            selectinload(Event.images)
+        )
+        .where(Event.id == new_event.id)
+    )
+
+    event_full = result.scalar_one()
+
+    return event_full
+    
 
 async def save_upload_file(file: UploadFile, folder: str):
 
