@@ -333,6 +333,8 @@ async def get_event(
     result = await db.execute(
         select(Event)
         .options(
+            selectinload(Event.event_categories)
+            .selectinload(EventCategory.category),
             selectinload(Event.company),
             selectinload(Event.images),
             selectinload(Event.sponsors)
