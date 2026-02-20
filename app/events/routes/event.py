@@ -251,19 +251,21 @@ async def save_upload_file(file: UploadFile, folder: str):
 
 @router.get("/", response_model=list[EventOut])
 async def list_events(
-    current_user: UserDB = Depends(RequireRoles("admin", "superadmin", "cliente")),
+    current_user: UserDB = Depends(RequireRoles("admin", "superadmin")),
     db: AsyncSession = Depends(get_db)
 ):
 
     query = select(Event)
+            .options(
+                selectinload(Event.event_categories)
+                .selectinload(EventCategory.category),
+                selectinload(Event.images)
+            )
 
     # Admin solo su company
     if current_user.role == "admin":
         query = query.where(Event.company_id == current_user.company_id)
 
-    # Cliente solo su company
-    if current_user.role == "cliente":
-        query = query.where(Event.company_id == current_user.company_id)
 
     result = await db.execute(query)
     events = result.scalars().all()
