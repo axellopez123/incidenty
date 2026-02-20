@@ -425,15 +425,19 @@ async def update_event(
 
     if categories is not None:
 
-        incoming = [EventCategoryUpdate(**item) for item in json.loads(categories)]
+        incoming = [
+            EventCategoryUpdate(**item)
+            for item in json.loads(categories)
+        ]
 
         incoming_ids = {
-            item.get("id") for item in incoming if item.get("id")
+            item.id for item in incoming if item.id
         }
 
         existing = {
             ec.id: ec for ec in event.event_categories
         }
+
 
         # DELETE
         for ec_id, ec in existing.items():
@@ -444,31 +448,31 @@ async def update_event(
         # UPDATE / CREATE
         for item in incoming:
 
-            if item.get("id") in existing:
+            if item.id and item.id in existing:
 
-                ec = existing[item["id"]]
+                ec = existing[item.id]
 
-                ec.category_id = item["category_id"]
-                ec.price = item.get("price")
-                ec.max_participants = item.get("max_participants")
-                ec.start_time = item.get("start_time")
-                ec.end_time = item.get("end_time")
-                ec.registration_deadline = item.get(
-                    "registration_deadline"
-                )
+                ec.category_id = item.category_id
+                ec.price = item.price
+                ec.max_participants = item.max_participants
+                ec.start_time = item.start_time
+                ec.end_time = item.end_time
+                ec.registration_deadline = item.registration_deadline
+                ec.registration_open = item.registration_open
+                ec.status = item.status
 
             else:
 
                 db.add(EventCategory(
                     event_id=event.id,
-                    category_id=item["category_id"],
-                    price=item.get("price"),
-                    max_participants=item.get("max_participants"),
-                    start_time=item.get("start_time"),
-                    end_time=item.get("end_time"),
-                    registration_deadline=item.get(
-                        "registration_deadline"
-                    )
+                    category_id=item.category_id,
+                    price=item.price,
+                    max_participants=item.max_participants,
+                    start_time=item.start_time,
+                    end_time=item.end_time,
+                    registration_deadline=item.registration_deadline,
+                    registration_open=item.registration_open,
+                    status=item.status
                 ))
 
 

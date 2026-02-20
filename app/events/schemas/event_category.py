@@ -43,6 +43,10 @@ class EventCategoryCreate(EventCategoryBase):
 
 class EventCategoryUpdate(BaseModel):
 
+    id: Optional[int] = None
+
+    category_id: int
+
     price: Optional[int] = None
 
     max_participants: Optional[int] = None
