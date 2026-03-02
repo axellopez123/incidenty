@@ -7,7 +7,7 @@ from datetime import datetime
 from app.database import get_db
 from app.events.models.event_categories import EventCategory
 from app.phases.models.phase import EventCategoryPhase
-from app.events.schemas.event_category_phase import (
+from app.phases.schemas.phase import (
     EventCategoryPhaseCreate,
     EventCategoryPhaseUpdate,
     EventCategoryPhaseOut
