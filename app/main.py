@@ -6,7 +6,7 @@ from app.events.routes.event import router as event_router
 from app.sponsor.routes.sponsor import router as sponsor_router
 from app.categories.routes.category import router as category_router
 from app.distances.routes.distance import router as distance_router
-from app.phases.models.phase import router as phase_router
+from app.phases.routes.phase import router as phase_router
 
 import app.models
 from app.database import database, init_db

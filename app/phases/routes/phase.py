@@ -14,7 +14,7 @@ from app.events.schemas.event_category_phase import (
 )
 
 router = APIRouter(
-    prefix="/event-category-phases",
+    prefix="/phases",
     tags=["Event Category Phases"]
 )
 
@@ -116,4 +116,3 @@ async def delete_phase(
 
     return
 
-    
