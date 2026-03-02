@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, DateTime, ForeignKey, Boolean, String
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
+from app.distances.models.distance import Distance
+from app.categories.models.category import Category
 
 
 class EventCategory(Base):
