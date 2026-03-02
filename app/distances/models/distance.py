@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 from app.database import Base
-from app.events.models.event_categories import EventCategory
 
 class Distance(Base):
     __tablename__ = "distances"
