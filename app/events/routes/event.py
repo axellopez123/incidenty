@@ -8,6 +8,7 @@ from app.events.schemas.event import EventCreate, EventUpdate, EventOut
 from app.auth.models.user import UserDB
 from app.events.models.event_categories import EventCategory
 from app.categories.models.category import Category
+from app.distances.models.distance import Distance
 from app.auth.core.permissions import RequireRoles
 from app.company.models.company import Company
 from typing import List, Optional
@@ -160,11 +161,41 @@ async def create_event(
                     404,
                     f"Category {item.category_id} no existe"
                 )
+                
+                
+            result = await db.execute(
+                select(Distance).where(Distance.id == item.distance_id)
+            )
 
+            distance = result.scalar_one_or_none()
+
+            if not distance:
+                raise HTTPException(
+                    404,
+                    f"Distance {item.distance_id} no existe"
+                )
+                
+            result = await db.execute(
+                select(EventCategory).where(
+                    EventCategory.event_id == new_event.id,
+                    EventCategory.category_id == item.category_id,
+                    EventCategory.distance_id == item.distance_id
+                )
+            )
+
+            existing = result.scalar_one_or_none()
+
+            if existing:
+                raise HTTPException(
+                    400,
+                    "Esta combinación de categoría y distancia ya existe para este evento"
+                )
+                
             event_category = EventCategory(
                 event_id=new_event.id,
                 category_id=item.category_id,
-
+                distance_id=item.distance_id,
+                
                 price=item.price,
                 max_participants=item.max_participants,
 

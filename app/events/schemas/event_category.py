@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 from app.categories.schemas.category import CategoryOut
-
+from app.distances.schemas.distance import DistanceResponse
 
 # =========================
 # EventCategory Base
@@ -35,7 +35,7 @@ class EventCategoryBase(BaseModel):
 class EventCategoryCreate(EventCategoryBase):
 
     category_id: int
-
+    distance_id: int
 
 # =========================
 # Update
@@ -46,7 +46,8 @@ class EventCategoryUpdate(BaseModel):
     id: Optional[int] = None
 
     category_id: int
-
+    distance_id: int
+    
     price: Optional[int] = None
 
     max_participants: Optional[int] = None
@@ -73,5 +74,6 @@ class EventCategoryOut(EventCategoryBase):
     created_at: datetime
 
     category: CategoryOut
+    distance: DistanceResponse
 
     model_config = ConfigDict(from_attributes=True)

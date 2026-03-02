@@ -21,7 +21,13 @@ class EventCategory(Base):
         ForeignKey("categories.id", ondelete="CASCADE"),
         nullable=False
     )
-
+    
+    distance_id = Column(
+        Integer,
+        ForeignKey("distances.id", ondelete="RESTRICT"),
+        nullable=False
+    )
+    
     # configuración específica
     price = Column(Integer, default=0)
 
@@ -52,5 +58,10 @@ class EventCategory(Base):
 
     category = relationship(
         "Category",
+        back_populates="event_categories"
+    )
+    
+    distance = relationship(
+        "Distance",
         back_populates="event_categories"
     )
