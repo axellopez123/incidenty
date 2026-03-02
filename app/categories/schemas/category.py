@@ -47,7 +47,7 @@ class CategoryOut(BaseModel):
     max_age: Optional[int]
 
     is_active: bool
-    current_phase: Optional[EventCategoryPhaseOut] = None
+
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
