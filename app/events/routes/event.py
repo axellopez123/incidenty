@@ -8,6 +8,7 @@ from app.events.schemas.event import EventCreate, EventUpdate, EventOut
 from app.auth.models.user import UserDB
 from app.events.models.event_categories import EventCategory
 from app.categories.models.category import Category
+from app.distance.models.distance import Distance
 from app.auth.core.permissions import RequireRoles
 from app.company.models.company import Company
 from typing import List, Optional
