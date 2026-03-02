@@ -22,5 +22,6 @@ class EventCategoryPhaseUpdate(BaseModel):
 
 class EventCategoryPhaseOut(EventCategoryPhaseBase):
     id: int
+    status: str   # 🔥 dinámico
 
     model_config = ConfigDict(from_attributes=True)

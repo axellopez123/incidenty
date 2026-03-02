@@ -359,6 +359,7 @@ async def list_events(
 
     return result.scalars().all()
 
+from app.events.services.pricing_service import get_phase_status
 
 @router.get("/{event_id}", response_model=EventOut)
 async def get_event(
@@ -376,6 +377,9 @@ async def get_event(
             selectinload(Event.event_categories)
                 .selectinload(EventCategory.distance),
 
+            selectinload(Event.event_categories)
+                .selectinload(EventCategory.phases),
+
             selectinload(Event.company),
             selectinload(Event.images),
             selectinload(Event.sponsors)
@@ -392,6 +396,18 @@ async def get_event(
     if current_user.role != "superadmin":
         if event.company_id != current_user.company_id:
             raise HTTPException(403, "No autorizado")
+
+    for ec in event.event_categories:
+
+        current_phase = None
+
+        for phase in ec.phases:
+            phase.status = get_phase_status(phase)
+
+            if phase.status == "active":
+                current_phase = phase
+
+        ec.current_phase = current_phase
 
     return event
 

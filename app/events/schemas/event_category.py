@@ -4,7 +4,7 @@ from typing import Optional
 
 from app.categories.schemas.category import CategoryOut
 from app.distances.schemas.distance import DistanceResponse
-
+from app.phases.schemas.phase import EventCategoryPhaseOut
 # =========================
 # EventCategory Base
 # =========================
