@@ -292,7 +292,10 @@ async def list_events(
     query = select(Event).options(
         selectinload(Event.event_categories)
         .selectinload(EventCategory.category),
-        
+
+        selectinload(Event.event_categories)
+            .selectinload(EventCategory.distance),
+
         selectinload(Event.images)
         )
 
