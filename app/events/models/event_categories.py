@@ -67,3 +67,10 @@ class EventCategory(Base):
         "Distance",
         back_populates="event_categories"
     )
+
+    phases = relationship(
+        "EventCategoryPhase",
+        back_populates="event_category",
+        cascade="all, delete-orphan",
+        lazy="selectin"
+    )
