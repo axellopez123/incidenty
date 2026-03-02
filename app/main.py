@@ -5,7 +5,7 @@ from app.company.routes.company import router as company_router
 from app.events.routes.event import router as event_router
 from app.sponsor.routes.sponsor import router as sponsor_router
 from app.categories.routes.category import router as category_router
-
+from app.distances.routes.distance import router as distance_router
 import app.models
 from app.database import database, init_db
 
@@ -39,6 +39,7 @@ app.include_router(company_router, prefix="/api")
 app.include_router(event_router, prefix="/api")
 app.include_router(sponsor_router, prefix="/api")
 app.include_router(category_router, prefix="/api")
+app.include_router(distance_router, prefix="/api")
 
 
 # # Crear el directorio media si no existe
