@@ -1,8 +1,10 @@
 from datetime import datetime
 from sqlalchemy import select
+from app.database import get_db
+
 
 async def get_current_price(
-    db: AsyncSession,
+    db: AsyncSession = Depends(get_db)
     event_category_id: int
 ) -> int:
 
