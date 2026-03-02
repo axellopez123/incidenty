@@ -372,6 +372,10 @@ async def get_event(
         .options(
             selectinload(Event.event_categories)
             .selectinload(EventCategory.category),
+                        
+            selectinload(Event.event_categories)
+                .selectinload(EventCategory.distance),
+
             selectinload(Event.company),
             selectinload(Event.images),
             selectinload(Event.sponsors)
