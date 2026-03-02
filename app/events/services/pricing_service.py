@@ -2,7 +2,7 @@ from app.database import get_db
 from datetime import datetime
 from sqlalchemy import select
 
-from app.events.models.event_category_phase import EventCategoryPhase
+from app.phases.models.phase import EventCategoryPhase
 
 
 async def get_current_price(
