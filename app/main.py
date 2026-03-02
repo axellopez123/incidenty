@@ -6,6 +6,8 @@ from app.events.routes.event import router as event_router
 from app.sponsor.routes.sponsor import router as sponsor_router
 from app.categories.routes.category import router as category_router
 from app.distances.routes.distance import router as distance_router
+from app.phases.models.phase import router as phase_router
+
 import app.models
 from app.database import database, init_db
 
@@ -40,6 +42,7 @@ app.include_router(event_router, prefix="/api")
 app.include_router(sponsor_router, prefix="/api")
 app.include_router(category_router, prefix="/api")
 app.include_router(distance_router, prefix="/api")
+app.include_router(phase_router, prefix="/api")
 
 
 # # Crear el directorio media si no existe
