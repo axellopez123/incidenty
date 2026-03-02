@@ -88,7 +88,7 @@ class Event(Base):
     
     distance = relationship(
         "Distance",
-        back_populates="distances"
+        back_populates="distance"
     )
 
 
