@@ -15,5 +15,4 @@ class Distance(Base):
     is_active = Column(Boolean, default=True)
 
     # relaciones
-    event = relationship("Event", back_populates="distance")
     event_categories = relationship("EventCategory", back_populates="distance")
