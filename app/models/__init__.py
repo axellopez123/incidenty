@@ -5,3 +5,4 @@ from app.sponsor.models.sponsor import Sponsor
 from app.events.models.event_sponsor import event_sponsors
 from app.categories.models.category import Category
 from app.events.models.event_categories import EventCategory
+from app.distances.models.distance import Distance

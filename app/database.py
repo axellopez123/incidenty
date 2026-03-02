@@ -32,6 +32,7 @@ async def init_db():
         from app.sponsor.models.sponsor import Sponsor
         from app.categories.models.category import Category
         from app.events.models.event_categories import EventCategory
+        from app.distances.models.distance import Distance
         
         async with engine.begin() as conn:
             await conn.run_sync(metadata.create_all)
