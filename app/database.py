@@ -27,12 +27,12 @@ async def init_db():
     try:
         from app.auth.models.user import UserDB
         from app.company.models.company import Company
+        from app.distances.models.distance import Distance
         from app.events.models.event import Event
         from app.events.models.event_sponsor import event_sponsors
         from app.sponsor.models.sponsor import Sponsor
         from app.categories.models.category import Category
         from app.events.models.event_categories import EventCategory
-        from app.distances.models.distance import Distance
         
         async with engine.begin() as conn:
             await conn.run_sync(metadata.create_all)
