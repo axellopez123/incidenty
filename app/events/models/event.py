@@ -56,7 +56,12 @@ class Event(Base):
 
 
     company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
-
+    distance_id = Column(
+        Integer,
+        ForeignKey("distances.id", ondelete="RESTRICT"),
+        nullable=False
+    )
+    
     created_at = Column(DateTime, default=datetime.utcnow)
 
     company = relationship("Company", back_populates="events")
@@ -79,6 +84,11 @@ class Event(Base):
         back_populates="event",
         cascade="all, delete-orphan",
         lazy="selectin"
+    )
+    
+    distance = relationship(
+        "Distance",
+        back_populates="distances"
     )
 
 
