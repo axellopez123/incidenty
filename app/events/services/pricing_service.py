@@ -30,3 +30,14 @@ async def get_current_price(
         raise Exception("No hay fase activa actualmente")
 
     return phase.price
+
+
+def get_phase_status(phase):
+    now = datetime.utcnow()
+
+    if now < phase.start_date:
+        return "upcoming"
+    elif phase.start_date <= now <= phase.end_date:
+        return "active"
+    else:
+        return "finished"
