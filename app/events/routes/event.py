@@ -288,7 +288,7 @@ async def create_event(
                 break
 
         ec.current_phase = active_phase
-        ec.current_price = active_phase.price
+        ec.current_price = active_phase.price if active_phase else ec.price
 
 
     return event_full
@@ -431,6 +431,7 @@ async def get_event(
                 current_phase = phase
 
         ec.current_phase = current_phase
+        ec.current_price = current_phase.price if current_phase else ec.price
 
     return event
 
