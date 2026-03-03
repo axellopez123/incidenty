@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
-from app.database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 from sqlalchemy import select
 
@@ -7,7 +7,7 @@ from app.phases.models.phase import EventCategoryPhase
 
 
 async def get_current_price(
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession,
     event_category_id: int
 ) -> int:
 
