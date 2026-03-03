@@ -75,6 +75,8 @@ class EventCategoryOut(EventCategoryBase):
 
     category: CategoryOut
     distance: DistanceResponse
-    current_phase: Optional[EventCategoryPhaseOut] = None
 
+    current_phase: Optional[EventCategoryPhaseOut] = None
+    current_price: Optional[int] = None
+    
     model_config = ConfigDict(from_attributes=True)

@@ -18,6 +18,8 @@ from datetime import datetime
 import slugify
 import json
 from app.events.schemas.event_category import EventCategoryCreate, EventCategoryUpdate
+from app.events.services.pricing_service import get_phase_status, get_current_price
+from app.phases.models.phase import EventCategoryPhase
 
 STORAGE_PATH = "storage/events"
 
@@ -260,12 +262,34 @@ async def create_event(
             selectinload(Event.event_categories)
                 .selectinload(EventCategory.distance),
 
+            selectinload(Event.event_categories)
+                .selectinload(EventCategory.phases),
+
             selectinload(Event.images)
         )
         .where(Event.id == new_event.id)
     )
 
     event_full = result.scalar_one()
+
+    now = datetime.utcnow()
+
+    for ec in event_full.event_categories:
+
+        # buscar fase activa manualmente
+        active_phase = None
+
+        for phase in ec.phases:
+            if (
+                phase.start_date <= now <= phase.end_date
+                and phase.is_active
+            ):
+                active_phase = phase
+                break
+
+        ec.current_phase = active_phase
+        ec.current_price = active_phase.price if active_phase else ec.price
+
 
     return event_full
     
@@ -359,7 +383,6 @@ async def list_events(
 
     return result.scalars().all()
 
-from app.events.services.pricing_service import get_phase_status
 
 @router.get("/{event_id}", response_model=EventOut)
 async def get_event(
