@@ -11,9 +11,9 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from app.database import Base
 
 # IMPORTA TODOS TUS MODELOS AQUÍ
-from app.auth.models.user import UserDB
-from app.company.models.company import Company
-from app.events.models.event import Event
+from app.student.models.student import Student
+from app.incidencia.models.incidencia import Incidencia
+
 
 
 # Alembic Config
