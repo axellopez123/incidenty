@@ -23,7 +23,7 @@ RUN touch /app/app/__init__.py
 # Define PYTHONPATH para importaciones correctas
 ENV PYTHONPATH="/app"
 
-EXPOSE 8008
+EXPOSE 8009
 
 # Copia y da permisos al script de entrada
 COPY entrypoint.sh /app/entrypoint.sh
