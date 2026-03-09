@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from app.database import get_session
+from app.database import get_db as get_session
 from app.incidencia.models.incidencia import Incidencia
 from app.student.models.student import Student
 
