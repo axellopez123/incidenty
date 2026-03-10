@@ -31,14 +31,25 @@ async def create_incidencia(
     if not student:
         raise HTTPException(404, "Student not found")
 
-    incidencia = Incidencia(**data.model_dump())
+    payload = data.model_dump()
+
+    # convertir arrays a string
+    if payload["leve_faction"]:
+        payload["leve_faction"] = ",".join(payload["leve_faction"])
+
+    if payload["grave_faction"]:
+        payload["grave_faction"] = ",".join(payload["grave_faction"])
+
+    if payload["muy_grave_faction"]:
+        payload["muy_grave_faction"] = ",".join(payload["muy_grave_faction"])
+
+    incidencia = Incidencia(**payload)
 
     db.add(incidencia)
     await db.commit()
     await db.refresh(incidencia)
 
     return incidencia
-
 
 @router.get("/", response_model=list[IncidenciaResponse])
 async def list_incidencias(
@@ -84,7 +95,14 @@ async def update_incidencia(
     if not incidencia:
         raise HTTPException(404, "Incidencia not found")
 
-    for key, value in data.model_dump(exclude_unset=True).items():
+    payload = data.model_dump(exclude_unset=True)
+
+    # convertir arrays a string si vienen en el update
+    for field in ["leve_faction", "grave_faction", "muy_grave_faction"]:
+        if field in payload and payload[field] is not None:
+            payload[field] = ",".join(payload[field])
+
+    for key, value in payload.items():
         setattr(incidencia, key, value)
 
     await db.commit()
