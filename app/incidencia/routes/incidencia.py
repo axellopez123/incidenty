@@ -33,15 +33,10 @@ async def create_incidencia(
 
     payload = data.model_dump()
 
-    # convertir arrays a string
-    if payload["leve_faction"]:
-        payload["leve_faction"] = ",".join(payload["leve_faction"])
-
-    if payload["grave_faction"]:
-        payload["grave_faction"] = ",".join(payload["grave_faction"])
-
-    if payload["muy_grave_faction"]:
-        payload["muy_grave_faction"] = ",".join(payload["muy_grave_faction"])
+    # convertir arrays a string si vienen como lista
+    for field in ["leve_faction", "grave_faction", "muy_grave_faction"]:
+        if payload.get(field) and isinstance(payload[field], list):
+            payload[field] = ",".join(payload[field])
 
     incidencia = Incidencia(**payload)
 
@@ -100,7 +95,8 @@ async def update_incidencia(
     # convertir arrays a string si vienen en el update
     for field in ["leve_faction", "grave_faction", "muy_grave_faction"]:
         if field in payload and payload[field] is not None:
-            payload[field] = ",".join(payload[field])
+            if isinstance(payload[field], list):
+                payload[field] = ",".join(payload[field])
 
     for key, value in payload.items():
         setattr(incidencia, key, value)
