@@ -158,9 +158,16 @@ async def download_incidencia_word(
         "grade": incid.student.grade,
         "group": incid.student.group,
         "date": incid.date.strftime("%d/%m/%Y") if incid.date else "N/A",
+        "incidencia_id": incid.id,
         "description": incid.description or "",
         "disciplinary": incid.disciplinary or "",
-        "acuerdos_compromisos": incid.acuerdos_compromisos or ""
+        "acuerdos_compromisos": incid.acuerdos_compromisos or "",
+        "leve_faction": incid.leve_faction.split(",") if (incid.leve_faction and isinstance(incid.leve_faction, str)) else [],
+        "leve_other": incid.leve_other or "",
+        "grave_faction": incid.grave_faction.split(",") if (incid.grave_faction and isinstance(incid.grave_faction, str)) else [],
+        "grave_other": incid.grave_other or "",
+        "muy_grave_faction": incid.muy_grave_faction.split(",") if (incid.muy_grave_faction and isinstance(incid.muy_grave_faction, str)) else [],
+        "muy_grave_other": incid.muy_grave_other or "",
     }
 
     # Generate document using docxtpl
