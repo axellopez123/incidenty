@@ -12,13 +12,13 @@ class Incidencia(Base):
 
     date = Column(DateTime)
 
-    leve_faction = Column(String(5))
+    leve_faction = Column(String(50))
     leve_other = Column(String(500))
 
-    grave_faction = Column(String(5))
+    grave_faction = Column(String(50))
     grave_other = Column(String(500))
 
-    muy_grave_faction = Column(String(5))
+    muy_grave_faction = Column(String(50))
     muy_grave_other = Column(String(500))
 
     description = Column(String(900))
